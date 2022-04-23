@@ -48,9 +48,17 @@ def auth():
 def get_user_list():
 	return ''
 
-@app.route('/user/<id>')
+@app.route('/user/<username>')
 def get_user_token():
-	return ''
+	username = request.view_args['username']
+	if not username:
+		return make_response('Unable to fetch user token', 404, {'WWW-Authenticate': 'Basic realm="username required"'})
+	try:
+		user_file = open('users/' + user, 'rb')
+		lines = [line.rstrip() for line in file]
+		return jsonify({'token': lines[2]})
+	except:
+		return make_response('Unable to fetch user token', 404, {'WWW-Authenticate': 'Basic realm="unable to find the user info"'})
 
 # create a user with the user file with the given info
 # returns a token for user to store (probably will be in a file too, so it can be reusable)
@@ -65,10 +73,11 @@ def create_user():
 		return make_response('Create user failed', 403, {'WWW-Authenticate': 'Basic realm="login required"'})
 	with open('users/' + user_file_name + '.txt', 'w') as f:
 		f.write(username + '\n')
-		f.write(password)
+		f.write(password + '\n')
+		token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=100)}, app.config['SECRETE_KEY']) 
+		f.write(token)
 		f.close()
 
-	token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=100)}, app.config['SECRETE_KEY']) 
 	return jsonify({'token': token})
 
 @app.route('/connect')
