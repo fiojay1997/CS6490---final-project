@@ -3,6 +3,7 @@ from flask import Flask, jsonify, request, make_response
 import jwt
 import datetime
 from functools import wraps
+import os.path
 
 app = Flask(__name__)
 app.config['SECRETE_KEY']= 'eaa37fe1fa251109802ebb895f7830e3'
@@ -41,20 +42,50 @@ def auth():
 
 	return make_response('Auth failed', 401, {'WWW-Authenticate': 'Basic realm="login required"'})
 
-@app.route('/user', method=['GET'])
+# since we are not using a database, the user info will directly stored in a file
+@app.route('/user/list')
+@token_required
 def get_user_list():
 	return ''
 
-@app.route('/user/<id>', method=['GET'])
+@app.route('/user/<id>')
 def get_user_token():
 	return ''
 
-@app.route('/user', method=['POST'])
+# create a user with the user file with the given info
+# returns a token for user to store (probably will be in a file too, so it can be reusable)
+@app.route('/user/create')
 def create_user():
+	auth = request.authorization
+	user_file_name = ''
+	password = ''
+	if auth:
+		username = auth.username
+		password = auth.password	
+	else:
+		return make_response('Create user failed', 403, {'WWW-Authenticate': 'Basic realm="login required"'})
+	with open('users/' + user_file_name + '.txt', 'w') as f:
+		f.writelines(username)
+		f.writelines(password)
+		f.close()
+
+	token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=100)}, app.config['SECRETE_KEY']) 
+	return jsonify({'token': token})
+
+@app.route('/connect')
+def connect_users():
 	return ''
 
-@app.route('/connect', method=['POST'])
-def connect_users():
+def store_file(filename, content):
+	with open('users/' + filename + '_filename', 'w') as f:
+		try:
+			f.write(content)
+		except:
+			return False
+		f.close()
+	return True
+
+def encrypt_file(filename):
 	return ''
 
 if __name__ == '__main__':
