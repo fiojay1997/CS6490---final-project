@@ -57,7 +57,6 @@ def get_user_token():
 @app.route('/user/create')
 def create_user():
 	auth = request.authorization
-	user_file_name = ''
 	password = ''
 	if auth:
 		username = auth.username
@@ -65,8 +64,8 @@ def create_user():
 	else:
 		return make_response('Create user failed', 403, {'WWW-Authenticate': 'Basic realm="login required"'})
 	with open('users/' + user_file_name + '.txt', 'w') as f:
-		f.writelines(username)
-		f.writelines(password)
+		f.write(username + '\n')
+		f.write(password)
 		f.close()
 
 	token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=100)}, app.config['SECRETE_KEY']) 
