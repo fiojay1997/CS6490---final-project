@@ -71,7 +71,7 @@ def create_user():
 		password = auth.password	
 	else:
 		return make_response('Create user failed', 403, {'WWW-Authenticate': 'Basic realm="login required"'})
-	with open('users/' + user_file_name + '.txt', 'w') as f:
+	with open('users/' + username + '.txt', 'w') as f:
 		f.write(username + '\n')
 		f.write(password + '\n')
 		token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=100)}, app.config['SECRETE_KEY']) 
@@ -80,8 +80,13 @@ def create_user():
 
 	return jsonify({'token': token})
 
-@app.route('/connect')
+@app.route('/connect/<username>')
 def connect_users():
+	return ''
+
+# send messages to another user
+@app.route('/message')
+def send_message():
 	return ''
 
 def store_file(filename, content):
