@@ -36,10 +36,19 @@ def protected():
 @app.route('/auth')
 def auth():
 	auth = request.authorization
-	if auth and auth.password == 'password':
+	username = auth.username
+	pwd = auth.password
+	if not username or not pwd:
+		return make_response('Auth failed', 401, {'WWW-Authenticate': 'Basic realm="username or password required"'})
+	try:
+		userfile = open('users/' + username + '.txt')
+		actual_pwd = [line.rstrip() for line in userfile]
+		if actual_pwd != pwd:
+			return make_response('Auth failed', 401, {'WWW-Authenticate': 'Basic realm="password mismatch"'})
 		token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=100)}, app.config['SECRETE_KEY']) 
 		return jsonify({'token': token})
-
+	except:
+		return make_response('Auth failed', 401, {'WWW-Authenticate': 'Basic realm="login required"'})
 	return make_response('Auth failed', 401, {'WWW-Authenticate': 'Basic realm="login required"'})
 
 # since we are not using a database, the user info will directly stored in a file
