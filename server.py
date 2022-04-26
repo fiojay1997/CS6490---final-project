@@ -9,7 +9,7 @@ clients = []
 
 def main():
     IP = '0.0.0.0'
-    PORT = 9996
+    PORT = 9999
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((IP, PORT))
     server.listen(5)
