@@ -45,6 +45,7 @@ def split_msg(msg):
 def forward_msg(source, dest, msg):
     forward_msg = source.encode() + b': ' + msg
 
+    print(forward_msg.decode())
     for client in clients:
         if client['user'] == dest:
             send(client['sock'], forward_msg)
