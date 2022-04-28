@@ -18,9 +18,9 @@ send_init = False
 def set_up_connection(user):
     global destination
     if user == 'steven':
-        destination = jay
+        destination = 'JayFuKJ'
     elif user == 'jay':
-        destination = steven
+        destination = 'stev_thomson'
 
     consumer_key, consumer_secret, access_token, secret_token = get_auth_and_tokens(user)
     api = config_connection(consumer_key, consumer_secret, access_token, secret_token)
@@ -109,7 +109,7 @@ def recv_chat(api, s_a):
 def send(api, msg):
     global destination
 
-    user = api.get_user(destination)
+    user = api.get_user(screen_name=destination)
     recipient_id = user.id_str
     api.send_direct_message(recipient_id, msg)
 
@@ -128,6 +128,6 @@ def get_crypto_suite():
 
 
 if __name__ == '__main__':
-    user = input('enter username: (steven OR jay')
+    user = input('enter username: (steven OR jay) ')
     api = set_up_connection(user)
     begin_secure_chat(api)
