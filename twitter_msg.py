@@ -19,7 +19,7 @@ def set_up_connection(user):
     global destination
     if user == 'steven':
         destination = jay
-    else if user == 'jay':
+    elif user == 'jay':
         destination = steven
 
     consumer_key, consumer_secret, access_token, secret_token = get_auth_and_tokens(user)
@@ -54,7 +54,8 @@ def send_chat(api, s_a):
     t_a = str(exponentiate(g, s_a, p))
     send(api, t_a)
 
-    global send_init = True
+    global send_init
+    send_init = True
     
     global secret_key
     while(secret_key == ''):
@@ -89,7 +90,7 @@ def recv_chat(api, s_a):
             secret_key = exponentiate(t_b, s_a, p)
             break
 
-    crypt = get_key()
+    crypt = get_crypto_suite()
     
     while(True):
         messages = api.list_direct_messages(count=5)
