@@ -6,14 +6,12 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-api = ''
 p = 784313
 g = 1907
 secret_key = ''
 destination = ''
 steven = 'stev_thomson'
-jay = ''
-most_recont = ''
+jay = 'JayFuKJ'
 send_init = False
 
 
@@ -106,7 +104,6 @@ def recv_chat(api, s_a):
                     print(msg)
 
     
-
 
 def send(api, msg):
     global destination
