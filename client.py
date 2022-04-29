@@ -1,6 +1,8 @@
 import socket
 import struct
 import base64
+import hmac
+import hashlib
 import threading
 from EXPO import *
 from cryptography.fernet import Fernet
@@ -13,10 +15,15 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 p = 784313
 g = 1907
 secret_key = ''
+preshared_secret = b'7jay7leo7stev7'
+user = ''
+recv_hash = ''
 
 def connect(client, HOST, PORT):
     client.connect((HOST, PORT))
-    send(client, input('enter your username: ').encode())
+    global user
+    user = input('enter your username: ')
+    send(client, user.encode())
     response = recieve(client)
     if response != b'okay':
         return
@@ -31,14 +38,34 @@ def chat(client, dest):
 
 def send_chat(client, dest, s_a):
     #formulate t_a, send t_a
+    dest = dest.encode()
     t_a = str(exponentiate(g, s_a, p))
-    msg = dest + '\n\n' + t_a
-    send(client, msg.encode())
+    msg = dest + b'\n\n' + t_a.encode()
+    send(client, msg)
+
     global secret_key
     while(secret_key == ''):
         continue
     crypt = get_key()
-    dest = dest.encode()
+    
+    global user
+    my_hash = get_hmac(user.encode())
+    expected_hash = get_hmac(dest)
+
+    msg = dest + b'\n\n' + my_hash
+    send(client, msg)
+
+    global recv_hash
+    while(recv_hash == ''):
+        continue
+
+    print('expected:', expected_hash)
+    print('recieved:', recv_hash)
+
+    if recv_hash != expected_hash:
+        print('error')
+        raise RuntimeError('mismatched hash!')
+
     print('from now on, just type message and hit enter to send!')
     while(True):
         msg = input('you: ')
@@ -53,6 +80,14 @@ def recv_chat(client, dest, s_a):
     global secret_key 
     secret_key = exponentiate(t_b, s_a, p)
     crypt = get_key()
+
+    msg = recieve(client)
+    msg = msg.split(b' ')
+    r_h = msg[1]
+
+    global recv_hash
+    recv_hash = r_h
+
     dest = dest + ': '
     dest = dest.encode()
     while(True):
@@ -74,6 +109,11 @@ def get_key():
     key = base64.urlsafe_b64encode(kdf.derive(secret_key.to_bytes(8, 'little')))
     f = Fernet(key)
     return f
+
+def get_hmac(source):
+    s = preshared_secret + source
+    hash = hmac.new(s, secret_key.to_bytes(8, 'little'), hashlib.sha256)
+    return hash.digest()
 
 #       https://docs.python.org/3.6/howto/sockets.html#using-a-socket
 #       https://stackoverflow.com/questions/17667903/python-socket-receive-large-amount-of-data

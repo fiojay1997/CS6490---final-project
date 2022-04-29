@@ -33,19 +33,19 @@ def handle_client(client_socket, addr):
     #TODO: error handling
     while(True):
         msg = recieve(client_socket)
-        dest, msg = split_msg(msg.decode())
+        dest, msg = split_msg(msg)
         forward_msg(username, dest, msg)
 
 
 def split_msg(msg):
-    msg = msg.split('\n\n')
-    return msg[0], msg[1].encode()
+    msg = msg.split(b'\n\n')
+    return msg[0].decode(), msg[1]
 
 
 def forward_msg(source, dest, msg):
     forward_msg = source.encode() + b': ' + msg
 
-    print(forward_msg.decode())
+    print(forward_msg)
     for client in clients:
         if client['user'] == dest:
             send(client['sock'], forward_msg)
