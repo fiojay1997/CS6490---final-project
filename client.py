@@ -157,7 +157,7 @@ def receive_all(sock, size):
 if __name__ == '__main__':
     #alice
     HOST = '127.0.0.1'
-    PORT = 9999
+    PORT = 8888
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     connect(client, HOST, PORT)
     client.close()
