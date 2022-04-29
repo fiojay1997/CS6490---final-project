@@ -30,11 +30,13 @@ def connect(client, HOST, PORT):
     dest = input('connection made, who do you want to message? ')
     chat(client, dest)
     
+    
 def chat(client, dest):
     s_a = int(input('enter a number at least 5 digits long: '))
     recv_t = threading.Thread(target = recv_chat, args = (client, dest, s_a))
     recv_t.start()
     send_chat(client, dest, s_a)
+
 
 def send_chat(client, dest, s_a):
     #formulate t_a, send t_a
@@ -72,6 +74,7 @@ def send_chat(client, dest, s_a):
         msg = dest + b'\n\n' + crypt.encrypt(msg.encode())
         send(client, msg)
 
+
 def recv_chat(client, dest, s_a):
     #reeive t_b, formulate key (exponentiate(t_b, s_a, p))
     msg = recieve(client).decode()
@@ -83,10 +86,15 @@ def recv_chat(client, dest, s_a):
 
     msg = recieve(client)
     msg = msg.split(b' ')
-    r_h = msg[1]
+
+    r_h = msg[1:]
+
+    r_b = b''
+    for r in r_h:
+        r_b += r
 
     global recv_hash
-    recv_hash = r_h
+    recv_hash = r
 
     dest = dest + ': '
     dest = dest.encode()
